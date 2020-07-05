@@ -172,20 +172,20 @@ public class VirtualCube {
                 Right.setColorsOn('U',backColors);
                 Up.shift(Face.CW);
                 break;
-            case KeyEvent.VK_N: //D
-                backColors = Back.getReverseColorsOn('D');
-                Back.setColorsOn('D',Left.getReverseColorsOn('D'));
-                Left.setColorsOn('D',Front.getColorsOn('D'));
-                Front.setColorsOn('D',Right.getColorsOn('D'));
-                Right.setColorsOn('D',backColors);
-                Down.shift(Face.CW);
-                break;
-            case KeyEvent.VK_V: //D'
+            case KeyEvent.VK_V: //D
                 backColors = Back.getReverseColorsOn('D');
                 Back.setColorsOn('D',Right.getReverseColorsOn('D'));
                 Right.setColorsOn('D',Front.getColorsOn('D'));
                 Front.setColorsOn('D',Left.getColorsOn('D'));
                 Left.setColorsOn('D',backColors);
+                Down.shift(Face.CW);
+                break;
+            case KeyEvent.VK_N: //D'
+                backColors = Back.getReverseColorsOn('D');
+                Back.setColorsOn('D',Left.getReverseColorsOn('D'));
+                Left.setColorsOn('D',Front.getColorsOn('D'));
+                Front.setColorsOn('D',Right.getColorsOn('D'));
+                Right.setColorsOn('D',backColors);
                 Down.shift(Face.CCW);
                 break;
             case KeyEvent.VK_J: //F
@@ -203,6 +203,26 @@ public class VirtualCube {
                 Down.setColorsOn('U',Left.getColorsOn('R'));
                 Left.setColorsOn('R',upColors);
                 Front.shift(Face.CCW);
+                break;
+            case 1: //U2
+                turnCube(KeyEvent.VK_U);
+                turnCube(KeyEvent.VK_U);
+                break;
+            case 2: //R2
+                turnCube(KeyEvent.VK_K);
+                turnCube(KeyEvent.VK_K);
+                break;
+            case 3://L2
+                turnCube(KeyEvent.VK_D);
+                turnCube(KeyEvent.VK_D);
+                break;
+            case 4://D2
+                turnCube(KeyEvent.VK_N);
+                turnCube(KeyEvent.VK_N);
+                break;
+            case 5://F2
+                turnCube(KeyEvent.VK_J);
+                turnCube(KeyEvent.VK_J);
                 break;
         }
         drawCube();
@@ -248,6 +268,19 @@ public class VirtualCube {
         });
 
         JButton scrambleButton = new JButton("Scramble");
+        cubeScrambler scrambler = new cubeScrambler();
+        scrambleButton.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] scram = scrambler.generateScramble(21);
+                for(int i : scram){
+                    turnCube(i);
+                }
+                //display scramble
+            }
+            
+        });
         JButton solveButton = new JButton("Solve");
 
         gbc.gridx = 0;
