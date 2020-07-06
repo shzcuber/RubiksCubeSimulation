@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -18,7 +19,7 @@ public class VirtualCube {
     private static GridBagConstraints gbc;
     private static Face Front, Back, Up, Down, Left, Right; // back face is never visible
     private static Color[] frontColors, upColors,downColors, leftColors, rightColors, backColors;
-    private static final Color 
+    public static final Color 
     WHITE = new Color(255, 255, 255), 
     YELLOW = new Color(255, 255, 0),
     ORANGE = new Color(255, 127, 80), 
@@ -55,12 +56,12 @@ public class VirtualCube {
         backColors = new Color[9];
 
         for(int i=0; i<9; i++){
-            frontColors[i] = WHITE;
-            upColors[i] = ORANGE;
-            downColors[i] = RED;
-            leftColors[i] = GREEN;
-            rightColors[i] = BLUE;
-            backColors[i] = YELLOW;
+            frontColors[i] = GREEN;
+            upColors[i] = WHITE;
+            downColors[i] = YELLOW;
+            leftColors[i] = ORANGE;
+            rightColors[i] = RED;
+            backColors[i] = BLUE;
         }
 
         Back = new Face(backColors);
@@ -281,7 +282,18 @@ public class VirtualCube {
             }
             
         });
+
         JButton solveButton = new JButton("Solve");
+        solveButton.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LBLSolver solver = new LBLSolver(getFaces());
+                ArrayList<Integer> solution = solver.getSolution(YELLOW);
+                
+            }
+
+        });
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -357,6 +369,17 @@ public class VirtualCube {
                 actionListener.actionPerformed(e);
             }
         });
+    }
+
+    public Face[] getFaces(){
+        Face[] cubeFaces = new Face[6];
+        cubeFaces[0] = Front;
+        cubeFaces[1] = Back;
+        cubeFaces[2] = Up;
+        cubeFaces[3] = Down;
+        cubeFaces[4] = Left;
+        cubeFaces[5] = Right;
+        return cubeFaces;
     }
     public static void main(String[] args){
         new VirtualCube();

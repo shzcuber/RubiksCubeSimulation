@@ -22,7 +22,7 @@ public class cubeScrambler {
             int randMove, randType;
             do{
                 randMove = rand.nextInt(5);
-            }while(isRedundant(i, randMove, prev));// && isRedundant(randMove, prev));
+            }while(isRedundant(i, randMove, prev));
 
             prev = randMove;
 
@@ -42,20 +42,23 @@ public class cubeScrambler {
 
     private static boolean isRedundant(int i, int randMove,int prev){
         char a = possibleMoves[randMove], b = possibleMoves[prev];
-        if(i>0 && randMove == prev || (i>1 && (a==scram[i-2]) && (
-            a==b||
-            a=='R' && b == 'L'||
-            a=='L' && b == 'R'||
-            a=='D' && b == 'U'||
-            a=='U' && b == 'D'||
-            a=='B' && b == 'F'||
-            a=='F' && b == 'B'
-        ))){
+        if(i>0 && randMove == prev || (i>1 && a==scram[i-2] && matches(a, b))){
             return true;
         }
         return false;
     }
-    
+
+    private static boolean matches(char a, char b){
+        if( (a=='R' && b == 'L')||
+            (a=='L' && b == 'R')||
+            (a=='D' && b == 'U')||
+            (a=='U' && b == 'D')||
+            (a=='B' && b == 'F')||
+            (a=='F' && b == 'B')){
+                return true;
+        }
+            return false;
+     }
     public static void setMoves(){
         moves.put("R", KeyEvent.VK_I);
         moves.put("R'", KeyEvent.VK_K);

@@ -174,6 +174,23 @@ public class Face extends JPanel{
         return colors;
     }
 
+    public String toString(){
+        if(colors[4]==VirtualCube.WHITE){
+            return "WHITE";
+        }else if(colors[4]==VirtualCube.YELLOW){
+            return "YELLOW";
+        }else if(colors[4]==VirtualCube.ORANGE){
+            return "ORANGE";
+        }
+        else if(colors[4]==VirtualCube.BLUE){
+            return "BLUE";
+        }
+        else if(colors[4]==VirtualCube.RED){
+            return "RED";
+        }
+        return "GREEN";
+    }
+
     public void setColors(Color[] colors){
         this.colors = colors;
     }
