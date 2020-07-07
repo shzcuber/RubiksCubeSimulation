@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 public class VirtualCube {
-    private static final boolean debugMode = true;
+    public static final boolean debugMode = true;
     private static JFrame frame;
     private static JPanel cubeDisplay;
     private static GridBagConstraints gbc;
@@ -74,7 +74,7 @@ public class VirtualCube {
         drawCube();
     }
 
-    private void rotateCube(int direction){
+    public static void rotateCube(int direction){
         backColors = Back.getColors();
         switch(direction){
             case KeyEvent.VK_UP://X'
@@ -229,7 +229,7 @@ public class VirtualCube {
         drawCube();
     }
 
-    private void drawCube(){
+    private static void drawCube(){
         gbc.gridx = 1;
         gbc.gridy = 0;
         cubeDisplay.add(Up, gbc);
@@ -288,8 +288,8 @@ public class VirtualCube {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                LBLSolver solver = new LBLSolver(getFaces());
-                ArrayList<Integer> solution = solver.getSolution(YELLOW);
+                LBLSolver solver = new LBLSolver(getFaces(), YELLOW);
+                ArrayList<Integer> solution = solver.getSolution();
                 
             }
 
@@ -371,14 +371,14 @@ public class VirtualCube {
         });
     }
 
-    public Face[] getFaces(){
+    public static Face[] getFaces(){
         Face[] cubeFaces = new Face[6];
         cubeFaces[0] = Front;
-        cubeFaces[1] = Back;
-        cubeFaces[2] = Up;
-        cubeFaces[3] = Down;
-        cubeFaces[4] = Left;
-        cubeFaces[5] = Right;
+        cubeFaces[1] = Right;
+        cubeFaces[2] = Back;
+        cubeFaces[3] = Left;
+        cubeFaces[4] = Up;
+        cubeFaces[5] = Down;
         return cubeFaces;
     }
     public static void main(String[] args){

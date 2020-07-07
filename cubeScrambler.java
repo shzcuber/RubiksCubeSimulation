@@ -37,6 +37,7 @@ public class cubeScrambler {
 
             scram[i] = moves.get(move);
         }
+        System.out.println();
         return scram;
     }
 
