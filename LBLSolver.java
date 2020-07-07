@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class LBLSolver {
     private ArrayList<Integer> entireSolution, crossSolution, cornerSolution, secondLayerSolution, OLLSolution, PLLSolution;
@@ -53,7 +54,7 @@ public class LBLSolver {
         // }
 
         for(int i=0; i<4; i++){
-            System.out.println(edgeFaces[i] + " " + edgeLocations[i]);
+            System.out.println(edgeFaces[i] + " " + getMatchingEdgeColor(edgeFaces[i], edgeLocations[i])  +  " " + edgeLocations[i]);
         }
 
         System.out.println("Horizontal distance " + checkHorizontalRelationship(VirtualCube.YELLOW, VirtualCube.ORANGE));
@@ -124,6 +125,63 @@ public class LBLSolver {
             }
         }
         return 0;
+    }
+
+    public Color getMatchingEdgeColor(Face f, int pos){
+        HashMap<Face, Color> correspondingTopEdgeColor = new HashMap<Face, Color>();
+        correspondingTopEdgeColor.put(Left, upColors[1]);
+        correspondingTopEdgeColor.put(Back, upColors[3]);
+        correspondingTopEdgeColor.put(Front, upColors[5]);
+        correspondingTopEdgeColor.put(Right, upColors[7]);
+
+        HashMap<Face, Color> correspondingBottomEdgeColor = new HashMap<Face, Color>();
+        correspondingBottomEdgeColor.put(Left, downColors[1]);
+        correspondingBottomEdgeColor.put(Front, downColors[3]);
+        correspondingBottomEdgeColor.put(Back, downColors[5]);
+        correspondingBottomEdgeColor.put(Right, downColors[7]);
+
+        if(f==Up || f==Down){
+            return getVerticalColor(f==Up ? 'U' : 'D', pos);
+        }else{
+            if(pos==1){
+                return getFaceToTheLeft(f).getColors()[7];
+            }else if(pos==7){
+                return getFaceToTheRight(f).getColors()[1];
+            }else if(pos==3){
+                return correspondingTopEdgeColor.get(f);
+            }else if(pos==5){
+                return correspondingBottomEdgeColor.get(f);
+            }
+        }
+        return null;
+    }
+
+    public Color getVerticalColor(char face, int pos){
+        int i = face=='U' ? 3 : 5;
+        if(pos==1){
+            return leftColors[i];
+        }else if(pos==7){
+            return rightColors[i];
+        }else if(pos==3){
+            return face=='U' ? backColors[i] : frontColors[i];
+        }else if(pos==5){
+            return face=='U' ? frontColors[i] : backColors[i];
+        }
+        return null;
+    }
+
+    private Face getFaceToTheLeft(Face f){
+        Face[] horizontalFaces = {Front, Left, Back, Right, Front};
+        int i=0;
+        while(horizontalFaces[i++]!=f){}
+        return horizontalFaces[i];
+    }
+
+    private Face getFaceToTheRight(Face f){
+        Face[] horizontalFaces = {Front, Right, Back, Left, Front};
+        int i=0;
+        while(horizontalFaces[i++]!=f){}
+        return horizontalFaces[i];
     }
 
     public int checkHorizontalRelationship(Color c1, Color c2){ //-1 = left from color, 1 means right, 2 means 180, 0 means equal, -5 = N/A
