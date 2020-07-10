@@ -174,6 +174,10 @@ public class Face extends JPanel{
         return colors;
     }
 
+    public Color getCenterColor(){
+        return getColors()[4];
+    }
+
     public String toString(){
         if(colors[4]==VirtualCube.WHITE){
             return "WHITE";

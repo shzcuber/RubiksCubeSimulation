@@ -43,47 +43,67 @@ public class LBLSolver {
         crossSolution = new ArrayList<Integer>();
 
         crossEdges = new Edge[4];
-        edgeFaces = new Face[4];
-        edgeLocations = new int[4];
-        // int c=findEdges(true);
-        // for(int i=0; i<c; i++){
-        //     //solve good edges
-        // }
 
-        findEdges(false);
-        // for(int i=c-1; i<4; i++){
-        //     //solve bad edges
-        // }
+        Edge edge;
 
-        for(int i=0; i<4; i++){
-            Edge edge = crossEdges[i];
-            System.out.println(edge.a + " " + edge.aFace + " " + edge.aLocation + " " + edge.b + " " + edge.bFace + " " + edge.bLocation);
+        int c=0;
+        while((edge=findEdge(true)) != null){
+            if(edge.isSolved() != true){
+                ArrayList<Integer> insertEdgeSolution = insertEdge(edge, true);
+                for(int i : insertEdgeSolution){
+                    crossSolution.add(i);
+                }
+            }
         }
+
+        while((edge=findEdge(false)) != null){
+            ArrayList<Integer> insertEdgeSolution = insertEdge(edge, false);
+            for(int i : insertEdgeSolution){
+                crossSolution.add(i);
+            }
+        }
+
+        // for(int i=0; i<4; i++){
+        //     Edge e = crossEdges[i];
+        //     System.out.println(e.a + " " + e.aFace + " " + e.aLocation + " " + e.b + " " + e.bFace + " " + e.bLocation);
+        // }
 
         System.out.println("Horizontal distance " + checkHorizontalRelationship(VirtualCube.YELLOW, VirtualCube.ORANGE));
 
         return crossSolution;
     }
 
-    public void findEdges(boolean good){
+    
+
+    private ArrayList<Integer> insertEdge(Edge e, boolean isGood){
+        ArrayList<Integer> insertEdgeSolution = new ArrayList<>();
+        if(isGood){
+            int alignment = checkHorizontalRelationship(e.b, e.bFace.getCenterColor());
+            switch(alignment){
+
+            }   
+        }else{
+
+        }
+        return insertEdgeSolution;
+    }
+
+    public Edge findEdge(boolean good){
         //find good edges
         if(good){
-            int c=0;
-            for(int i=1; i<8 && c<4; i+=2){
+            for(int i=1; i<8; i+=2){
                 if(downColors[i]==crossColor){ //search all edges in top/bottom
-                    crossEdges[c++] = new Edge(downColors[i], Down, i, getMatchingEdge(Down, i));
-                    // edgeFaces[c] = Down;
-                    // edgeLocations[c++] = i;
+                    return new Edge(downColors[i], Down, i, getMatchingEdge(Down, i),true);
                 }if(upColors[i]==crossColor){
-                    crossEdges[c++] = new Edge(upColors[i], Up, i, getMatchingEdge(Up, i));
+                    return new Edge(upColors[i], Up, i, getMatchingEdge(Up, i), true);
                 }       
                 if(i==1 || i==7){ //search middle slice
                     if(leftColors[i]==crossColor){
-                        crossEdges[c++] = new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i));
+                        return new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i), true);
                     }if(rightColors[i]==crossColor){
-                        crossEdges[c++] = new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i));
+                        return new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i), true);
                     }if(frontColors[i]==crossColor){
-                        crossEdges[c++] = new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i));
+                        return new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i), true);
                     }if(backColors[i]==crossColor){
                         int j;
                         if(i==1){
@@ -93,12 +113,71 @@ public class LBLSolver {
                         }else{
                             j=i;
                         }
-                        crossEdges[c++] = new Edge(backColors[j], Back, j, getMatchingEdge(Back, j));
+                        return new Edge(backColors[i], Back, j, getMatchingEdge(Back, j), true);
                     }
                 }
             }
         }else{ //find all edges
-            for(int i=1, c=0; i<8 && c<4; i+=2){
+            for(int i=1; i<8; i+=2){
+                if(downColors[i]==crossColor){
+                    return new Edge(downColors[i], Down, i, getMatchingEdge(Down, i));
+                }if(upColors[i]==crossColor){
+                    return new Edge(upColors[i], Up, i, getMatchingEdge(Up, i));
+                }if(leftColors[i]==crossColor){
+                    return new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i));
+                }if(rightColors[i]==crossColor){
+                    return new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i));
+                }if(frontColors[i]==crossColor){
+                    return new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i));
+                }if(backColors[i]==crossColor){
+                    int j;
+                    if(i==1){
+                        j=7;
+                    }else if(i==7){
+                        j=1;
+                    }else{
+                        j=i;
+                    }
+                    return new Edge(backColors[i], Back, j, getMatchingEdge(Back, j));
+                }
+            }
+        }
+        return null;
+    }
+
+    public int findEdges(boolean good){
+        int c=0;
+        //find good edges
+        if(good){
+            for(int i=1; i<8 && c<4; i+=2){
+                if(downColors[i]==crossColor){ //search all edges in top/bottom
+                    crossEdges[c++] = new Edge(downColors[i], Down, i, getMatchingEdge(Down, i),true);
+                }if(upColors[i]==crossColor){
+                    crossEdges[c++] = new Edge(upColors[i], Up, i, getMatchingEdge(Up, i), true);
+                }       
+                if(i==1 || i==7){ //search middle slice
+                    if(leftColors[i]==crossColor){
+                        crossEdges[c++] = new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i), true);
+                    }if(rightColors[i]==crossColor){
+                        crossEdges[c++] = new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i), true);
+                    }if(frontColors[i]==crossColor){
+                        crossEdges[c++] = new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i), true);
+                    }if(backColors[i]==crossColor){
+                        int j;
+                        if(i==1){
+                            j=7;
+                        }else if(i==7){
+                            j=1;
+                        }else{
+                            j=i;
+                        }
+                        crossEdges[c++] = new Edge(backColors[i], Back, j, getMatchingEdge(Back, j), true);
+                    }
+                }
+            }
+            return c;
+        }else{ //find all edges
+            for(int i=1; i<8 && c<4; i+=2){
                 if(downColors[i]==crossColor){
                     crossEdges[c++] = new Edge(downColors[i], Down, i, getMatchingEdge(Down, i));
                 }if(upColors[i]==crossColor){
@@ -118,10 +197,11 @@ public class LBLSolver {
                     }else{
                         j=i;
                     }
-                    crossEdges[c++] = new Edge(backColors[j], Back, j, getMatchingEdge(Back, j));
+                    crossEdges[c++] = new Edge(backColors[i], Back, j, getMatchingEdge(Back, j));
                 }
             }
         }
+        return c;
     }
 
     public Edge getMatchingEdge(Face f, int pos){

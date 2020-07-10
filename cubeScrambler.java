@@ -8,31 +8,32 @@ public class cubeScrambler {
     private static HashMap<String, Integer> moves = new HashMap<String, Integer>();
     private static int[] scram;
 
-    public cubeScrambler(){
+    public cubeScrambler() {
         setMoves();
     }
-    //generates random moves to pass to VirtualCube.java
-    public int[] generateScramble(int len){
+
+    // generates random moves to pass to VirtualCube.java
+    public int[] generateScramble(int len) {
         String move;
         scram = new int[len];
         Random rand = new Random();
-        int prev=0;
+        int prev = 0;
 
-        for(int i=0; i<len; i++){
+        for (int i = 0; i < len; i++) {
             int randMove, randType;
-            do{
+            do {
                 randMove = rand.nextInt(5);
-            }while(isRedundant(i, randMove, prev));
+            } while (isRedundant(i, randMove, prev));
 
             prev = randMove;
 
             randType = rand.nextInt(3);
-            if(randType<2){
+            if (randType < 2) {
                 move = "" + possibleMoves[randMove] + moveType[randType];
-            }else{
+            } else {
                 move = "" + possibleMoves[randMove];
             }
-            
+
             System.out.print(move + " ");
 
             scram[i] = moves.get(move);
@@ -41,26 +42,23 @@ public class cubeScrambler {
         return scram;
     }
 
-    private static boolean isRedundant(int i, int randMove,int prev){
+    private static boolean isRedundant(int i, int randMove, int prev) {
         char a = possibleMoves[randMove], b = possibleMoves[prev];
-        if(i>0 && randMove == prev || (i>1 && a==scram[i-2] && matches(a, b))){
+        if (i > 0 && randMove == prev || (i > 1 && (a == scram[i - 2]) && matches(a, b))) {
             return true;
         }
         return false;
     }
 
-    private static boolean matches(char a, char b){
-        if( (a=='R' && b == 'L')||
-            (a=='L' && b == 'R')||
-            (a=='D' && b == 'U')||
-            (a=='U' && b == 'D')||
-            (a=='B' && b == 'F')||
-            (a=='F' && b == 'B')){
-                return true;
+    private static boolean matches(char a, char b) {
+        if ((a == 'R' && b == 'L') || (a == 'L' && b == 'R') || (a == 'D' && b == 'U') || (a == 'U' && b == 'D')
+                || (a == 'B' && b == 'F') || (a == 'F' && b == 'B')) {
+            return true;
         }
-            return false;
-     }
-    public static void setMoves(){
+        return false;
+    }
+
+    public static void setMoves() {
         moves.put("R", KeyEvent.VK_I);
         moves.put("R'", KeyEvent.VK_K);
         moves.put("R2", 2);

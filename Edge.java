@@ -4,12 +4,15 @@ public class Edge {
     public Color a, b;
     public Face aFace, bFace;
     public int aLocation, bLocation;
-    Edge(Color c, Face f, int location){
+    public boolean isGood;
+
+    Edge(Color c, Face f, int location) {
         this.a = c;
         this.aFace = f;
         this.aLocation = location;
     }
-    Edge(Color c, Face f, int location, Edge edge){
+
+    Edge(Color c, Face f, int location, Edge edge) {
         this.a = c;
         this.aFace = f;
         this.aLocation = location;
@@ -17,7 +20,18 @@ public class Edge {
         this.bFace = edge.aFace;
         this.bLocation = edge.aLocation;
     }
-    Edge(Color a, Face aFace, int aLocation, Color b, Face bFace, int bLocation){
+
+    Edge(Color c, Face f, int location, Edge edge, boolean isGood) {
+        this.a = c;
+        this.aFace = f;
+        this.aLocation = location;
+        this.b = edge.a;
+        this.bFace = edge.aFace;
+        this.bLocation = edge.aLocation;
+        this.isGood = isGood;
+    }
+
+    Edge(Color a, Face aFace, int aLocation, Color b, Face bFace, int bLocation) {
         this.a = a;
         this.aFace = aFace;
         this.aLocation = aLocation;
@@ -26,15 +40,24 @@ public class Edge {
         this.bLocation = bLocation;
     }
 
-    public void add(Color b, Face bFace, int bLocation){
+    public void add(Color b, Face bFace, int bLocation) {
         this.b = b;
-        this.bFace= bFace;
+        this.bFace = bFace;
         this.bLocation = bLocation;
     }
-    public void add(Edge edge){
+
+    public boolean isSolved(){
+        if(a==aFace.getColors()[4] && b==bFace.getColors()[4]){
+            return true;
+        }
+        return false;
+    }
+
+    
+
+    public void add(Edge edge) {
         this.b = edge.a;
         this.bFace = edge.aFace;
         this.bLocation = edge.aLocation;
     }
 }
-
