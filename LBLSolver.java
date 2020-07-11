@@ -9,11 +9,13 @@ public class LBLSolver {
     private Face Front, Back, Up, Down, Left, Right; //getting the faces to check move potential lookahead
     private Color[] frontColors, upColors,downColors, leftColors, rightColors, backColors;
     private Color crossColor;
+    private HashMap<String, Integer> moves;
 
     public LBLSolver(Face[] cubeFaces, Color crossColor){
         this.crossColor = crossColor;
 
         updateFaces(cubeFaces);
+        this.moves = cubeScrambler.moves;
 
         putCrossOnButtom();
     }
@@ -47,88 +49,202 @@ public class LBLSolver {
         Edge edge;
 
         int c=0;
+        
         while((edge=findEdge(true)) != null){
-            if(edge.isSolved() != true){
-                ArrayList<Integer> insertEdgeSolution = insertEdge(edge, true);
+            if(!edge.isSolved()){
+                System.out.println(edge.toString());
+                ArrayList<Integer> insertEdgeSolution = insertEdge(edge);
                 for(int i : insertEdgeSolution){
                     crossSolution.add(i);
+                    VirtualCube.turnCube(i);
                 }
             }
         }
 
-        while((edge=findEdge(false)) != null){
-            ArrayList<Integer> insertEdgeSolution = insertEdge(edge, false);
-            for(int i : insertEdgeSolution){
-                crossSolution.add(i);
-            }
-        }
+        //BAD EDGE UNDER DEVELOPMENT
+        // while((edge=findEdge(false)) != null){
+        //     if(!edge.isSolved()){
+        //         System.out.println(edge.toString());
+        //         ArrayList<Integer> insertEdgeSolution = insertEdge(edge);
+        //         int alreadyDone = edge.isGood ? 0 : 1;
+        //         for(int i : insertEdgeSolution){
+        //             crossSolution.add(i);
+        //             if(alreadyDone--<=0){
+        //                 VirtualCube.turnCube(i);
+        //             }
+        //         }
+        //     }
+        // }
 
         // for(int i=0; i<4; i++){
         //     Edge e = crossEdges[i];
         //     System.out.println(e.a + " " + e.aFace + " " + e.aLocation + " " + e.b + " " + e.bFace + " " + e.bLocation);
         // }
 
-        System.out.println("Horizontal distance " + checkHorizontalRelationship(VirtualCube.YELLOW, VirtualCube.ORANGE));
+        //System.out.println("Horizontal distance " + checkHorizontalRelationship(VirtualCube.YELLOW, VirtualCube.ORANGE));
 
         return crossSolution;
     }
 
     
 
-    private ArrayList<Integer> insertEdge(Edge e, boolean isGood){
+    private ArrayList<Integer> insertEdge(Edge e){
+        boolean isGood = e.isGood;
         ArrayList<Integer> insertEdgeSolution = new ArrayList<>();
+        int loc = e.aLocation;
         if(isGood){
+            if(e.aFace == Down){
+                if(loc==1){
+                    insertEdgeSolution.add(moves.get("L2"));
+                }else if(loc==3){
+                    insertEdgeSolution.add(moves.get("F2"));
+                }else if(loc==5){
+                    insertEdgeSolution.add(moves.get("B2"));
+                }else if(loc==7){
+                    insertEdgeSolution.add(moves.get("R2"));
+                }
+                return insertEdgeSolution;
+            }
             int alignment = checkHorizontalRelationship(e.b, e.bFace.getCenterColor());
             switch(alignment){
-
+                case -1:
+                    insertEdgeSolution.add(moves.get("D'"));
+                    insertEdgeSolution.add(insert(e));
+                    insertEdgeSolution.add(moves.get("D"));
+                    break;
+                case 0:
+                    insertEdgeSolution.add(insert(e));
+                    break;
+                case 1:
+                    insertEdgeSolution.add(moves.get("D"));
+                    insertEdgeSolution.add(insert(e));
+                    insertEdgeSolution.add(moves.get("D'"));
+                    break;
+                case 2:
+                    insertEdgeSolution.add(moves.get("D2"));
+                    insertEdgeSolution.add(insert(e));
+                    insertEdgeSolution.add(moves.get("D2"));
+                    break;
+                
             }   
         }else{
-
+            Face f = e.aFace;
+            if(f==Front){
+                insertEdgeSolution.add(moves.get("F"));
+                VirtualCube.turnCube(moves.get("F"));
+                insertEdgeSolution.addAll(insertEdge(e));
+                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                    insertEdgeSolution.add(moves.get("F'"));
+                }
+            }else if(f==Back){
+                insertEdgeSolution.add(moves.get("B"));
+                VirtualCube.turnCube(moves.get("B"));
+                insertEdgeSolution.addAll(insertEdge(e));
+                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                    insertEdgeSolution.add(moves.get("B'"));
+                }
+            }else if(f==Right){
+                insertEdgeSolution.add(moves.get("R"));
+                VirtualCube.turnCube(moves.get("R"));
+                e.aLocation = 7;
+                e.bFace = Back;
+                e.bLocation = 1;
+                insertEdgeSolution.addAll(insertEdge(e));
+                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                    insertEdgeSolution.add(moves.get("R'"));
+                }
+            }else if(f==Left){
+                insertEdgeSolution.add(moves.get("L"));
+                VirtualCube.turnCube(moves.get("L"));
+                insertEdgeSolution.addAll(insertEdge(e));
+                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                    insertEdgeSolution.add(moves.get("L'"));
+                }
+            }
         }
         return insertEdgeSolution;
     }
 
-    public Edge findEdge(boolean good){
-        //find good edges
-        if(good){
-            for(int i=1; i<8; i+=2){
-                if(downColors[i]==crossColor){ //search all edges in top/bottom
-                    return new Edge(downColors[i], Down, i, getMatchingEdge(Down, i),true);
-                }if(upColors[i]==crossColor){
-                    return new Edge(upColors[i], Up, i, getMatchingEdge(Up, i), true);
-                }       
-                if(i==1 || i==7){ //search middle slice
-                    if(leftColors[i]==crossColor){
-                        return new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i), true);
-                    }if(rightColors[i]==crossColor){
-                        return new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i), true);
-                    }if(frontColors[i]==crossColor){
-                        return new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i), true);
-                    }if(backColors[i]==crossColor){
-                        int j;
-                        if(i==1){
-                            j=7;
-                        }else if(i==7){
-                            j=1;
-                        }else{
-                            j=i;
-                        }
-                        return new Edge(backColors[i], Back, j, getMatchingEdge(Back, j), true);
-                    }
-                }
+    public int insert(Edge e){
+        Face f = e.aFace;
+        int loc = e.aLocation;
+        if(f==Front){
+            if(loc==1){
+                return moves.get("L");
+            }else{
+                return moves.get("R'");
             }
-        }else{ //find all edges
-            for(int i=1; i<8; i+=2){
-                if(downColors[i]==crossColor){
-                    return new Edge(downColors[i], Down, i, getMatchingEdge(Down, i));
-                }if(upColors[i]==crossColor){
-                    return new Edge(upColors[i], Up, i, getMatchingEdge(Up, i));
-                }if(leftColors[i]==crossColor){
-                    return new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i));
+        }else if(f==Back){
+            if(loc==7){
+                return moves.get("L'");
+            }else{
+                return moves.get("R");
+            }
+        }else if(f==Left){
+            if(loc==1){
+                return moves.get("B");
+            }else{
+                return moves.get("F'");
+            }
+        }else if(f==Right){
+            if(loc==7){
+                return moves.get("B'");
+            }else{
+                return moves.get("F");
+            }
+        }else if(f==Up){
+            if(loc==1){
+                return moves.get("L2");
+            }else if(loc==3){
+                return moves.get("B2");
+            }else if(loc==5){
+                return moves.get("F2");
+            }else if(loc==7){
+                return moves.get("R2");
+            }
+        }
+        return 0;
+    }
+
+    public Edge findEdge(boolean good){
+        Edge e;
+        for(int i=1; i<8; i+=2){
+            if(downColors[i]==crossColor){ //search all edges in top/bottom
+                e = new Edge(downColors[i], Down, i, getMatchingEdge(Down, i),true);
+                if(e.isSolved()==false){
+                    return e;
+                }
+            }if(upColors[i]==crossColor){
+                e = new Edge(upColors[i], Up, i, getMatchingEdge(Up, i), true);
+                if(e.isSolved()==false){
+                    return e;
+                }
+            }       
+            if(!good || i==1 || i==7){ //search middle slice
+                if(leftColors[i]==crossColor){
+                    e = new Edge(leftColors[i], Left, i, getMatchingEdge(Left, i));
+                    if(i==1 || i==7){
+                        e.isGood = true;
+                    }
+                    if(e.isSolved()==false){
+                        return e;
+                    }
                 }if(rightColors[i]==crossColor){
-                    return new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i));
+                    e = new Edge(rightColors[i], Right, i, getMatchingEdge(Right, i));
+                    if(i==1 || i==7){
+                        e.isGood = true;
+                    }
+                    if(e.isSolved()==false){
+                        return e;
+                    }
                 }if(frontColors[i]==crossColor){
-                    return new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i));
+                    e = new Edge(frontColors[i], Front, i, getMatchingEdge(Front, i));
+                    if(i==1 || i==7){
+                        e.isGood = true;
+                    }
+                    if(e.isSolved()==false){
+                        return e;
+                    }
                 }if(backColors[i]==crossColor){
                     int j;
                     if(i==1){
@@ -138,7 +254,13 @@ public class LBLSolver {
                     }else{
                         j=i;
                     }
-                    return new Edge(backColors[i], Back, j, getMatchingEdge(Back, j));
+                    e = new Edge(backColors[i], Back, j, getMatchingEdge(Back, j));
+                    if(i==1 || i==7){
+                        e.isGood = true;
+                    }
+                    if(e.isSolved()==false){
+                        return e;
+                    }
                 }
             }
         }

@@ -47,12 +47,16 @@ public class Edge {
     }
 
     public boolean isSolved(){
-        if(a==aFace.getColors()[4] && b==bFace.getColors()[4]){
+        if(a==aFace.getCenterColor() && b==bFace.getCenterColor()){
             return true;
         }
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "First color is on " + aFace.toString() + " location" +aLocation;
+    }
     
 
     public void add(Edge edge) {

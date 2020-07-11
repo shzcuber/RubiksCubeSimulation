@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -26,6 +27,7 @@ public class VirtualCube {
     BLUE = new Color(0, 0, 128), 
     RED = new Color(255, 0, 0),
     GREEN = new Color(0, 255, 0);
+    
 
     public VirtualCube() {
         frame = new JFrame("Virtual Cube");
@@ -121,7 +123,7 @@ public class VirtualCube {
         drawCube();
     }
 
-    private void turnCube(int direction){
+    public static void turnCube(int direction){
         Color[] backColors;
         Color[] upColors;
         switch(direction){
@@ -205,6 +207,22 @@ public class VirtualCube {
                 Left.setColorsOn('R',upColors);
                 Front.shift(Face.CCW);
                 break;
+            case KeyEvent.VK_S: //B
+                upColors = Up.getReverseColorsOn('U');
+                Up.setColorsOn('U',Right.getColorsOn('R'));
+                Right.setColorsOn('R',Down.getReverseColorsOn('D'));
+                Down.setColorsOn('D',Left.getColorsOn('L'));
+                Left.setColorsOn('L',upColors);
+                Back.shift(Face.CCW);
+                break;
+            case KeyEvent.VK_L: //B'
+                upColors = Up.getColorsOn('U');
+                Up.setColorsOn('U',Left.getReverseColorsOn('L'));
+                Left.setColorsOn('L',Down.getColorsOn('D'));
+                Down.setColorsOn('D',Right.getReverseColorsOn('R'));
+                Right.setColorsOn('R',upColors);
+                Back.shift(Face.CW);
+                break;
             case 1: //U2
                 turnCube(KeyEvent.VK_U);
                 turnCube(KeyEvent.VK_U);
@@ -224,6 +242,10 @@ public class VirtualCube {
             case 5://F2
                 turnCube(KeyEvent.VK_J);
                 turnCube(KeyEvent.VK_J);
+                break;
+            case 6://B2 
+                turnCube(KeyEvent.VK_L);
+                turnCube(KeyEvent.VK_L);
                 break;
         }
         drawCube();
@@ -355,6 +377,12 @@ public class VirtualCube {
         addKeyBinding(cubeDisplay, KeyEvent.VK_J, "turnFront", (evt) -> {
             turnCube(KeyEvent.VK_J);
         });
+        addKeyBinding(cubeDisplay, KeyEvent.VK_L, "turnBackInverted", (evt) -> {
+            turnCube(KeyEvent.VK_L);
+        });
+        addKeyBinding(cubeDisplay, KeyEvent.VK_S, "turnBack", (evt) -> {
+            turnCube(KeyEvent.VK_S);
+        });
         
     }
 
@@ -381,6 +409,8 @@ public class VirtualCube {
         cubeFaces[5] = Down;
         return cubeFaces;
     }
+
+   
     public static void main(String[] args){
         new VirtualCube();
     }

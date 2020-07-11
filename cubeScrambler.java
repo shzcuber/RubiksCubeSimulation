@@ -3,9 +3,9 @@ import java.awt.event.KeyEvent;
 import java.util.Random;
 
 public class cubeScrambler {
-    private static char[] possibleMoves = new char[5];
+    private static char[] possibleMoves = new char[6];
     private static char[] moveType = new char[2];
-    private static HashMap<String, Integer> moves = new HashMap<String, Integer>();
+    public static HashMap<String, Integer> moves = new HashMap<String, Integer>();
     private static int[] scram;
 
     public cubeScrambler() {
@@ -22,7 +22,7 @@ public class cubeScrambler {
         for (int i = 0; i < len; i++) {
             int randMove, randType;
             do {
-                randMove = rand.nextInt(5);
+                randMove = rand.nextInt(6);
             } while (isRedundant(i, randMove, prev));
 
             prev = randMove;
@@ -79,11 +79,16 @@ public class cubeScrambler {
         moves.put("F'", KeyEvent.VK_F);
         moves.put("F2", 5);
 
+        moves.put("B'", KeyEvent.VK_L);
+        moves.put("B", KeyEvent.VK_S);
+        moves.put("B2", 6);
+
         possibleMoves[0] = 'R';
         possibleMoves[1] = 'L';
         possibleMoves[2] = 'U';
         possibleMoves[3] = 'F';
         possibleMoves[4] = 'D';
+        possibleMoves[5] = 'B';
 
         moveType[0] = '\'';
         moveType[1] = '2';
