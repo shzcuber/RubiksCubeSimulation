@@ -10,12 +10,14 @@ public class LBLSolver {
     private Color[] frontColors, upColors,downColors, leftColors, rightColors, backColors;
     private Color crossColor;
     private HashMap<String, Integer> moves;
+    private HashMap<Integer, String> reverseMoves;
 
     public LBLSolver(Face[] cubeFaces, Color crossColor){
         this.crossColor = crossColor;
 
         updateFaces(cubeFaces);
         this.moves = cubeScrambler.moves;
+        this.reverseMoves = cubeScrambler.reverseMoves;
 
         putCrossOnButtom();
     }
@@ -47,34 +49,38 @@ public class LBLSolver {
         crossEdges = new Edge[4];
 
         Edge edge;
-
-        int c=0;
         
         while((edge=findEdge(true)) != null){
             if(!edge.isSolved()){
-                System.out.println(edge.toString());
+                //System.out.println(edge.toString());
                 ArrayList<Integer> insertEdgeSolution = insertEdge(edge);
                 for(int i : insertEdgeSolution){
                     crossSolution.add(i);
                     VirtualCube.turnCube(i);
+                    System.out.print(reverseMoves.get(i) + " ");
                 }
             }
         }
+        System.out.println("//good edges solved");
 
         //BAD EDGE UNDER DEVELOPMENT
-        // while((edge=findEdge(false)) != null){
-        //     if(!edge.isSolved()){
-        //         System.out.println(edge.toString());
-        //         ArrayList<Integer> insertEdgeSolution = insertEdge(edge);
-        //         int alreadyDone = edge.isGood ? 0 : 1;
-        //         for(int i : insertEdgeSolution){
-        //             crossSolution.add(i);
-        //             if(alreadyDone--<=0){
-        //                 VirtualCube.turnCube(i);
-        //             }
-        //         }
-        //     }
-        // }
+        edge=findEdge(false);
+        while((edge=findEdge(false)) != null){
+            if(!edge.isSolved()){
+                //System.out.println(edge.toString());
+                int alreadyDone = edge.isGood ? 0 : 1;
+                ArrayList<Integer> insertEdgeSolution = insertEdge(edge);
+                for(int i : insertEdgeSolution){
+                    crossSolution.add(i);
+                    if(alreadyDone--<1){
+                        VirtualCube.turnCube(i);
+                    }
+                    System.out.print(reverseMoves.get(i) + " ");
+                }
+            }
+        }
+        
+        System.out.println("//bad edges solved");
 
         // for(int i=0; i<4; i++){
         //     Edge e = crossEdges[i];
@@ -93,6 +99,7 @@ public class LBLSolver {
         ArrayList<Integer> insertEdgeSolution = new ArrayList<>();
         int loc = e.aLocation;
         if(isGood){
+            //System.out.println(loc + " " + e.aFace.toString() + " " + e.bFace.toString());
             if(e.aFace == Down){
                 if(loc==1){
                     insertEdgeSolution.add(moves.get("L2"));
@@ -129,26 +136,30 @@ public class LBLSolver {
             }   
         }else{
             Face f = e.aFace;
+            e.aLocation = 7;
+            e.bLocation = 1;
+            e.isGood = true;
             if(f==Front){
                 insertEdgeSolution.add(moves.get("F"));
                 VirtualCube.turnCube(moves.get("F"));
+                e.bFace = Right;
+                e.aFace = Front;
                 insertEdgeSolution.addAll(insertEdge(e));
-                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                if(checkHorizontalRelationship(e.b, f.getCenterColor())!=0){
                     insertEdgeSolution.add(moves.get("F'"));
                 }
             }else if(f==Back){
                 insertEdgeSolution.add(moves.get("B"));
                 VirtualCube.turnCube(moves.get("B"));
+                e.bFace = Left;
                 insertEdgeSolution.addAll(insertEdge(e));
-                if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
+                if(checkHorizontalRelationship(e.b, f.getCenterColor())!=0){
                     insertEdgeSolution.add(moves.get("B'"));
                 }
             }else if(f==Right){
                 insertEdgeSolution.add(moves.get("R"));
                 VirtualCube.turnCube(moves.get("R"));
-                e.aLocation = 7;
                 e.bFace = Back;
-                e.bLocation = 1;
                 insertEdgeSolution.addAll(insertEdge(e));
                 if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
                     insertEdgeSolution.add(moves.get("R'"));
@@ -156,6 +167,7 @@ public class LBLSolver {
             }else if(f==Left){
                 insertEdgeSolution.add(moves.get("L"));
                 VirtualCube.turnCube(moves.get("L"));
+                e.bFace = Front;
                 insertEdgeSolution.addAll(insertEdge(e));
                 if(checkHorizontalRelationship(e.b, e.aFace.getCenterColor())!=0){
                     insertEdgeSolution.add(moves.get("L'"));
@@ -343,8 +355,14 @@ public class LBLSolver {
             return getVerticalEdge(f==Up ? 'U' : 'D', pos);
         }else{
             if(pos==1){
+                if(f==Left){
+                    return new Edge(getFaceToTheRight(f).getColors()[1], getFaceToTheRight(f), 1);
+                }
                 return new Edge(getFaceToTheLeft(f).getColors()[7], getFaceToTheLeft(f), 7);
             }else if(pos==7){
+                if(f==Right){
+                    return new Edge(getFaceToTheRight(f).getColors()[7], getFaceToTheRight(f), 1);
+                }
                 return new Edge(getFaceToTheRight(f).getColors()[1], getFaceToTheRight(f), 1);
             }else if(pos==3){
                 return new Edge(correspondingTopEdgeColor.get(f), Up, 3);
